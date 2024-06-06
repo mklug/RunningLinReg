@@ -3,21 +3,13 @@
 This repository contains an implementation of simple linear regression that allows the efficient addition of new data points and removing of old data points.  With a least squares simple linear regression model
 $$y = \beta_1 x + \beta_0$$
 we estimate the parameters 
-$$
-\hat{\beta_1} = \frac{\sigma_{xy}}{\sigma_{x}^2}
-$$
+$$\hat{\beta_1} = \frac{\sigma_{xy}}{\sigma_{x}^2}$$
 and
-$$
-\hat{\beta_0} = \bar{y} - \hat{beta_1} \bar{x}
-$$
+$$\hat{\beta_0} = \bar{y} - \hat{beta_1} \bar{x}$$
 where $\sigma_{xy}$ is the sample covariance of $x$ and $y$, $\sigma_{x}^2$ is the sample variance of $x$, and $\bar{x}$ and $\bar{y}$ are the sample means of $x$ and $y$ respectively (as ratios are being taken, the Bessel correction can either be included or not, as long as this is done consistently, there will be no effect -- we make the convention that we are not using the Bessel correction as this simplifies some formulas).  Rather than recomputing all of the quantities each time a new data point is added (or removed), we can observe that the means can be efficiently updated without looking at all of the data and that the sample variance and covariance can be computed as 
-$$
-\sigma_x^2 = \bar{x^2} - \bar{x}^2
-$$
+$$\sigma_x^2 = \bar{x^2} - \bar{x}^2$$
 and
-$$
-\sigma_{xy}^2 = \bar{xy} - \bar{x} \cdot \bar{y}
-$$
+$$\sigma_{xy}^2 = \bar{xy} - \bar{x} \cdot \bar{y}$$
 Similarly, $r^2$ and the $t$-score of a linear regression can be efficiently updated (recalling that $r^2$ is the square of the sample correlation coeficient between $x$ and $y$, and the $t$ can be computed from $r$).  
 
 The file ``running_simple_stats.py`` contains a supporting class ``RunningSimpleStats`` that, after initialized with equal length two lists of numbers and given new $x$ and $y$, will efficiently update the means, variances and covariance of the data augmented by $x$ and $y$.  The lists are stored as queues (using the [``deque``](https://docs.python.org/3/library/collections.html) container) and as such this operation is called ``push``.  In addition, the class supports the simultaneous efficient removal of the first data points from the lists, together with an update to the relevant statistics -- this operation is denoted ``pop``.  If one wishes to add a new data point and remove the oldest data point from the dataset, this can be done slightly more efficiently than a call to a ``push`` and a ``pop``.  As this sort of updating is rather common, we include it as an operation ``pushpop``.  
