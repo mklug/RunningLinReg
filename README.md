@@ -1,9 +1,7 @@
 # RunningLinReg
 
 This repository contains an implementation of simple linear regression that allows the efficient addition of new data points and removing of old data points.  With a least squares simple linear regression model
-$$
-y = \beta_1 x + \beta_0
-$$
+$$y = \beta_1 x + \beta_0$$
 we estimate the parameters 
 $$
 \hat{\beta_1} = \frac{\sigma_{xy}}{\sigma_{x}^2}
