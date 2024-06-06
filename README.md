@@ -1,3 +1,5 @@
+# RunningLinReg
+
 This repository contains an implementation of simple linear regression that allows the efficient addition of new data points and removing of old data points.  With a least squares simple linear regression model
 $$
 y = \beta_1 x + \beta_0
@@ -31,4 +33,4 @@ The notebook ``testing.ipynb`` demonstrates that our linear regression class is 
 There are several [other methods](https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance) of computing the sample variance/covariance that have different tradeoffs.  [This](https://www.cs.yale.edu/publications/techreports/tr222.pdf) paper by Chan, Goub and LeVeque is a nice entry-point into these considerations that offers recommendations on when to possibly prefer certain methods over others.  These ideas ould be integrated with ``RunningLinearRegression`` following a suitable modification of the ``RunningSimpleStats`` class.  
 
 The ``old`` directory contains some fragments that I used in development and you should likely not look there.  The ``classis_lin_reg`` directory contains a naive implementation of linear regression with options for lasso and ridge regression and training via gradient descent.  Stochastic gradient descent offers a different avenue towards updating linear regression to new data which I plan to explore and compare with the method outlined here.  
-# RunningLinReg
+
