@@ -5,7 +5,7 @@ $$y = \beta_1 x + \beta_0$$
 we estimate the parameters 
 $$\hat{\beta_1} = \frac{\sigma_{xy}}{\sigma_{x}^2}$$
 and
-$$\hat{\beta_0} = \bar{y} - \hat{beta_1} \bar{x}$$
+$$\hat{\beta_0} = \bar{y} - \hat{\beta_1} \bar{x}$$
 where $\sigma_{xy}$ is the sample covariance of $x$ and $y$, $\sigma_{x}^2$ is the sample variance of $x$, and $\bar{x}$ and $\bar{y}$ are the sample means of $x$ and $y$ respectively (as ratios are being taken, the Bessel correction can either be included or not, as long as this is done consistently, there will be no effect -- we make the convention that we are not using the Bessel correction as this simplifies some formulas).  Rather than recomputing all of the quantities each time a new data point is added (or removed), we can observe that the means can be efficiently updated without looking at all of the data and that the sample variance and covariance can be computed as 
 $$\sigma_x^2 = \bar{x^2} - \bar{x}^2$$
 and
