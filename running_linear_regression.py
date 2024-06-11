@@ -1,6 +1,18 @@
 from math import sqrt
 import numpy as np
+import scipy.stats
 from running_simple_stats import RunningSimpleStats
+from class_is_fit import class_is_fit
+
+
+class NotFittedError(Exception):
+    '''
+    Exception that is raised when trying a nonfit method
+    before fitting.  
+    '''
+
+    def __str__(self):
+        return "You need to call the `fit` method first."
 
 
 class RunningLinearRegression(object):
@@ -11,55 +23,51 @@ class RunningLinearRegression(object):
     removal of the oldest datapoint using the method ``pop``, or 
     combining both operations with the method ``pushpop`` (which
     has improved efficiency over a serial excution of ``push`` 
-    and ``pop``).   
+    and ``pop``).  
+
+    Initialized with no arguments.  Prediction can not be
+    done until the ``fit`` method has been called.  
+
+    Instance attributes:
+    ``beta0_hat_`` : intercept parameter.
+    `beta1_hat_``  : slope parameter.
+    ``rss_``       : running simple statistics using the 
+                    ``RunningSimpleStats`` class.
     '''
-
-    def __init__(self):
-        '''
-        Initialized with no arguments.  Prediction can not be
-        done until the ``fit`` method has been called.  
-
-        Instance attributes:
-        ``beta0_hat`` : intercept parameter.
-        ``beta1_hat`` : slope parameter.
-        ``_rss``      : running simple statistics using the 
-                        ``RunningSimpleStats`` class.
-        '''
-        self.beta0_hat = None
-        self.beta1_hat = None
-        self._rss = None
 
     def fit(self, x_train, y_train):
         '''
         Fits the parameters using the naive closed formula for 
         the least squared coefficients.  Returns the fitted model.  
         '''
-        self._rss = RunningSimpleStats(x_train, y_train)
+        self.rss_ = RunningSimpleStats(x_train, y_train)
         x_train = np.array(x_train).reshape(-1, 1)
         ones = np.full(shape=x_train.shape, fill_value=1.0)
         X = np.concatenate((ones, x_train), axis=1)
-        self.beta0_hat, self.beta1_hat = (
+        self.beta0_hat_, self.beta1_hat_ = (
             np.linalg.inv(X.T @ X) @ X.T).dot(y_train)
         return self
 
     def _update_betas(self):
         '''
-        Updates the regression parameters ``beta0_hat`` and 
-        ``beta1_hat`` given that the other statistics have already
+        Updates the regression parameters ``beta0_hat_`` and 
+        `beta1_hat_`` given that the other statistics have already
         been updated.  Raises an exception if there are less than
         2 data points since you can not fit a line then.  
         '''
-        if self._rss.N < 2:
+        if self.rss_.N < 2:
             raise Exception("too few points to fit")
-        self.beta1_hat = self._rss.xy_cov / self._rss.x_var
-        self.beta0_hat = self._rss.ys.mean - self.beta1_hat * self._rss.xs.mean
+        self.beta1_hat_ = self.rss_.xy_cov / self.rss_.x_var
+        self.beta0_hat_ = self.rss_.ys.mean - self.beta1_hat_ * self.rss_.xs.mean
 
     def push(self, x, y):
         '''
         Adds the point with coordinates ``x`` and ``y`` to the 
         training data and updates the parameters accordingly.  
         '''
-        self._rss.push(x, y)
+        if not class_is_fit(self):
+            raise NotFittedError
+        self.rss_.push(x, y)
         self._update_betas()
 
     def pop(self):
@@ -67,7 +75,9 @@ class RunningLinearRegression(object):
         Pops the first entry off of the training data and updates 
         the parameters accordingly.  
         '''
-        res = self._rss.pop()
+        if not class_is_fit(self):
+            raise NotFittedError
+        res = self.rss_.pop()
         self._update_betas()
         return res
 
@@ -77,7 +87,9 @@ class RunningLinearRegression(object):
         training data, pops the first entry off of the training data
         and updates the parameters accordingly.  
         '''
-        res = self._rss.pushpop(x, y)
+        if not class_is_fit(self):
+            raise NotFittedError
+        res = self.rss_.pushpop(x, y)
         self._update_betas()
         return res
 
@@ -86,23 +98,51 @@ class RunningLinearRegression(object):
         Returns the array of predictions using the leared parameters
         given an array of test values.  
         '''
-        return self.beta1_hat * np.array(x_test) + self.beta0_hat
+        if not class_is_fit(self):
+            raise NotFittedError
+        return self.beta1_hat_ * np.array(x_test) + self.beta0_hat_
 
     def r(self):
         '''
         Computes the sample correlation between the independent 
         and dependent variables.  
         '''
-        return self._rss.xy_cov / sqrt((self._rss.x_var * self._rss.y_var))
+        if not class_is_fit(self):
+            raise NotFittedError
+        return self.rss_.xy_cov / sqrt((self.rss_.x_var * self.rss_.y_var))
 
     def r2(self):
         '''
         Computes the coefficient of determination.  
         '''
+        if not class_is_fit(self):
+            raise NotFittedError
         return self.r() ** 2
 
     def t_score(self):
         '''
         Computes the t-score.  
         '''
-        return sqrt(self._rss.N - 2) * self.r() / sqrt(1 - self.r2())
+        if not class_is_fit(self):
+            raise NotFittedError
+        return sqrt(self.rss_.N - 2) * self.r() / sqrt(1 - self.r2())
+
+    def _ppf_beta1(N, alpha):
+        '''
+        Computes the upper percentile point function of the 
+        t-distribution with N-2 degrees of freedom for alpha/2.
+        Used for obtaining a confidence interval for the slope.  
+        '''
+        return -scipy.stats.t.ppf(alpha/2, df=N-2)
+
+    def slope_confidence_interval(self, alpha):
+        '''
+        Returns the 100(1-alpha)% confidence interval for 
+        the slope.  Returns the confidence interval as a 
+        tuple.  
+        '''
+        if not class_is_fit(self):
+            raise NotFittedError
+        radius = (self.beta1_hat_ / self.t_score()) * \
+            RunningLinearRegression._ppf_beta1(self.rss_.N, alpha)
+        return (self.beta1_hat_ - radius, self.beta1_hat_ + radius)
