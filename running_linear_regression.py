@@ -25,8 +25,8 @@ class RunningLinearRegression(object):
     has improved efficiency over a serial excution of ``push`` 
     and ``pop``).  
 
-    Initialized with no arguments.  Prediction can not be
-    done until the ``fit`` method has been called.  
+    Initialized with no arguments.  The ``fit`` method must be 
+    called before any other methods.   
 
     Instance attributes:
     ``beta0_hat_`` : intercept parameter.
