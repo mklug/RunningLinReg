@@ -10,7 +10,7 @@ where $\sigma_{xy}$ is the sample covariance of $x$ and $y$, $\sigma_{x}^2$ is t
 $$\sigma_x^2 = \overline{x^2} - \overline{x}^2$$
 and
 $$\sigma_{xy}^2 = \overline{xy} - \overline{x} \cdot \overline{y}$$
-Similarly, $r^2$, the $t$-score, and the endpoints of a $100(1-\alpha)%$ confidence interval for the slope can be efficiently updated (recalling that $r^2$ is the square of the sample correlation coeficient between $x$ and $y$, and the $t$ can be computed from $r$).  
+Similarly, $r^2$, the $t$-score, and the endpoints of a $100(1-\alpha)$% confidence interval for the slope can be efficiently updated (recalling that $r^2$ is the square of the sample correlation coeficient between $x$ and $y$, and the $t$ can be computed from $r$).  
 
 The file ``running_simple_stats.py`` contains a supporting class ``RunningSimpleStats`` that, after initialized with equal length two lists of numbers and given new $x$ and $y$, will efficiently update the means, variances and covariance of the data augmented by $x$ and $y$.  The lists are stored as queues (using the [``deque``](https://docs.python.org/3/library/collections.html) container) and as such this operation is called ``push``.  In addition, the class supports the simultaneous efficient removal of the first data points from the lists, together with an update to the relevant statistics -- this operation is denoted ``pop``.  If one wishes to add a new data point and remove the oldest data point from the dataset, this can be done slightly more efficiently than a call to a ``push`` and a ``pop``.  As this sort of updating is rather common, we include it as an operation ``pushpop``.  
 
