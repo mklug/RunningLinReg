@@ -10,13 +10,13 @@ where $\sigma_{xy}$ is the sample covariance of $x$ and $y$, $\sigma_{x}^2$ is t
 $$\sigma_x^2 = \overline{x^2} - \overline{x}^2$$
 and
 $$\sigma_{xy}^2 = \overline{xy} - \overline{x} \cdot \overline{y}$$
-Similarly, $r^2$, the $t$-score, and the endpoints of a $100(1-\alpha)\%$ confidence interval for the slope can be efficiently updated (recalling that $r^2$ is the square of the sample correlation coeficient between $x$ and $y$, and the $t$ can be computed from $r$).  
+Similarly, $r^2$, the $t$-score, and the endpoints of a $100(1-\alpha)%$ confidence interval for the slope can be efficiently updated (recalling that $r^2$ is the square of the sample correlation coeficient between $x$ and $y$, and the $t$ can be computed from $r$).  
 
 The file ``running_simple_stats.py`` contains a supporting class ``RunningSimpleStats`` that, after initialized with equal length two lists of numbers and given new $x$ and $y$, will efficiently update the means, variances and covariance of the data augmented by $x$ and $y$.  The lists are stored as queues (using the [``deque``](https://docs.python.org/3/library/collections.html) container) and as such this operation is called ``push``.  In addition, the class supports the simultaneous efficient removal of the first data points from the lists, together with an update to the relevant statistics -- this operation is denoted ``pop``.  If one wishes to add a new data point and remove the oldest data point from the dataset, this can be done slightly more efficiently than a call to a ``push`` and a ``pop``.  As this sort of updating is rather common, we include it as an operation ``pushpop``.  
 
 The file ``running_linear_regression.py`` contains a class ``RunningLinearRegression`` that roughly follows the [sklearn linear regression API](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html) but allows for efficient support of these push, pop, and pushpop operations (where a complete retraining of the model is not necessary).  
 
-Appropriate generalizations of these classes would allow for support of multiple regression as well as support for updating confidence intervals and other statistics.  
+Appropriate generalizations of these classes would allow for support of multiple regression.  
 
 The notebook ``testing.ipynb`` demonstrates that our linear regression class is behaving as it should by comparing the parameters that it computes to the parameters computed by the sklearn ``LinearRegression`` class.  The notebook ``timing.ipynb`` gives performance comparisons between our linear regression class and the sklearn's ``LinearRegression`` with a (arbitrarily chosen) workload that involves pushing and popping of new and old data points.  We see that our method offers an approximately 20x speedup over the sklearn method (which completely retrains for each change in the dataset).  In addition, we include a comparison of pushing and popping separately and show that by grouping these as a single operation we get a 2x speedup.  
 
